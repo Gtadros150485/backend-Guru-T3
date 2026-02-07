@@ -1,0 +1,15 @@
+CREATE OR REPLACE VIEW top_5_products_last_month AS
+SELECT
+    n.name AS product_name,
+    root_cat.name AS root_category,
+    SUM(oi.quantity) AS total_quantity_sold
+FROM order_items oi
+JOIN orders o ON o.id = oi.order_id
+JOIN nomenclatures n ON n.id = oi.nomenclature_id
+JOIN categories c ON c.id = n.category_id
+JOIN categories root_cat ON root_cat.id = c.parent_id
+WHERE o.created_at >= date_trunc('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < date_trunc('month', CURRENT_DATE)
+GROUP BY n.name, root_cat.name
+ORDER BY total_quantity_sold DESC
+LIMIT 5;

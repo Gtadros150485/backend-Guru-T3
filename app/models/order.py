@@ -12,9 +12,9 @@ class Order(Base):
     client_id = Column(Integer, ForeignKey('clients.id'), nullable=False)
     client = relationship('client', back_populates='orders')
     items = relationship(
-        'Nomenclature',
-        secondary='order_item_association',
-        back_populates='orders'
+        "OrderItem",
+        back_populates="order",
+        cascade="all, delete-orphan"
     )
     total_amount = Column(Float, default=0.0)
     status = Column(String(50), default='pending')

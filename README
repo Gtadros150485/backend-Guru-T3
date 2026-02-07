@@ -1,0 +1,53 @@
+1. Database schema
+1.1 Main entities
+The data model is relational and consists of the following entities:
+categories
+id
+name
+parent_id (FK → categories.id, nullable)
+nomenclatures (products)
+id
+name
+price
+quantity
+category_id (FK → categories.id)
+clients
+id
+name
+address
+orders
+id
+client_id (FK → clients.id)
+created_at
+order_items
+id
+order_id (FK → orders.id)
+nomenclature_id (FK → nomenclatures.id)
+quantity
+price_at_order_time
+1.2 Category tree implementation
+The category hierarchy is implemented using the Adjacency List pattern.
+Each category stores a reference to its parent category (parent_id).
+This approach allows:
+Unlimited nesting depth
+Dynamic addition of new hierarchy levels
+Simple inserts and updates
+The maximum nesting level is not fixed and does not need to be known at design time, fully satisfying the task requirement.
+
+
+2. Query and schema optimization
+To improve performance under high load (thousands of orders per day), the following optimizations are recommended:
+Indexes
+Index on orders.created_at
+Composite index on order_items(order_id, nomenclature_id)
+Index on categories.parent_id
+Index on nomenclatures.category_id
+Denormalization
+Store price_at_order_time in order_items to avoid joining with products when calculating historical reports.
+Materialized views
+Convert top_5_products_last_month into a materialized view and refresh it periodically (e.g. every hour).
+Partitioning
+Partition orders table by month based on created_at to reduce scan size.
+Read optimization
+Separate read-heavy analytical queries from transactional workload (read replicas).
+These measures allow the system to scale efficiently as data volume grows.

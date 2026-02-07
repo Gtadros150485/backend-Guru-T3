@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {type InternalAxiosRequestConfig } from 'axios';
 
 // Get API URL from environment variable
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -12,25 +12,28 @@ export const api = axios.create({
   },
 });
 
-// Add request interceptor for auth tokens
+// Add request interceptor for auth token
 api.interceptors.request.use(
-  (config: { headers: { Authorization: string; }; }) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('access_token');
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error: never) => {
+  (error: unknown) => {
     return Promise.reject(error);
   }
 );
 
 // Add response interceptor for error handling
 api.interceptors.response.use(
-  (response: never) => response,
-  async (error: { response: { status: number; }; }) => {
-    if (error.response?.status === 401) {
+  (response) => {
+    return response;
+  },
+  async (error: unknown) => {
+    // Проверяем, является ли error объектом AxiosError
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
       // Handle unauthorized - redirect to login
       localStorage.removeItem('access_token');
       window.location.href = '/login';
