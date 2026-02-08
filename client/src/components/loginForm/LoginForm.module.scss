@@ -1,0 +1,353 @@
+// Variables
+$color-primary: #007bff;
+$color-primary-hover: #0056b3;
+$color-text: #333;
+$color-text-secondary: #666;
+$color-border: #ddd;
+$color-background: 1E1E1E;
+$color-shadow: rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$transition-speed: 0.3s;
+
+@mixin focus-ring {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
+}
+@mixin input-base {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid $color-border;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color $transition-speed ease;
+  background-color: $color-background;
+  color: $color-text;
+
+  &:focus {
+    border-color: $color-primary;
+    @include focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: lighten($color-text-secondary, 30%);
+  }
+}
+
+@mixin button-base {
+  width: 100%;
+  padding: 14px;
+  background-color: $color-primary;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transition-speed ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+
+  &:hover:not(:disabled) {
+    background-color: $color-primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($color-primary, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    @include focus-ring;
+  }
+}
+
+// Component Styles
+.loginContainer {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px 32px;
+  background: $color-background;
+  border-radius: $border-radius;
+  box-shadow: 0 8px 24px $color-shadow;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  @media (max-width: 480px) {
+    padding: 24px 20px;
+    margin: 0 16px;
+  }
+}
+
+.loginHeader {
+  text-align: center;
+  margin-bottom: 32px;
+
+  @media (max-width: 480px) {
+    margin-bottom: 24px;
+  }
+}
+
+.welcomeTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: $color-text;
+  line-height: 1.2;
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
+}
+
+.subtitle {
+  font-size: 16px;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: $color-text;
+  display: block;
+  line-height: 1.4;
+}
+
+.formInput {
+  @include input-base;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  color: $color-text-secondary;
+  gap: 10px;
+  padding: 4px 0;
+
+  &:hover {
+    .checkboxCustom {
+      border-color: $color-primary;
+    }
+  }
+}
+
+.checkboxInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  &:checked + .checkboxCustom {
+    background-color: $color-primary;
+    border-color: $color-primary;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 2px;
+    }
+  }
+
+  &:focus + .checkboxCustom {
+    @include focus-ring;
+  }
+
+  &:disabled + .checkboxCustom {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.checkboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid $color-border;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all $transition-speed ease;
+  flex-shrink: 0;
+}
+
+.checkboxLabel {
+  line-height: 1.4;
+}
+
+.submitButton {
+  @include button-base;
+  margin-top: 8px;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+
+  &::before {
+    content: '↻';
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      $color-border 20%,
+      $color-border 80%,
+      transparent 100%
+    );
+    z-index: 1;
+  }
+}
+
+.dividerText {
+  position: relative;
+  background-color: $color-background;
+  padding: 0 16px;
+  color: $color-text-secondary;
+  font-size: 14px;
+  z-index: 2;
+  display: inline-block;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.footerText {
+  font-size: 14px;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footerLink {
+  color: $color-primary;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color $transition-speed ease;
+  position: relative;
+
+  &:hover {
+    color: $color-primary-hover;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    @include focus-ring;
+    text-decoration: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .loginContainer {
+    background-color: #1E1E1E;
+    color: #ffffff;
+  }
+
+  .welcomeTitle,
+  .formLabel {
+    color: #ffffff;
+  }
+
+  .subtitle,
+  .checkboxLabel,
+  .footerText {
+    color: #b3b3b3;
+  }
+
+  .formInput {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+
+    &::placeholder {
+      color: #666666;
+    }
+  }
+
+  .checkboxCustom {
+    border-color: #404040;
+  }
+
+  .divider {
+    &::before {
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        #404040 20%,
+        #404040 80%,
+        transparent 100%
+      );
+    }
+  }
+
+  .dividerText {
+    background-color: #1a1a1a;
+  }
+}
