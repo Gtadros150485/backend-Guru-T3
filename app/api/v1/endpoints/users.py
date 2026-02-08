@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.models.database import get_db
 from app.models.user import User
-from app.schemas.auth import UserResponse, UserUpdate
-from app.auth.dependencies import get_current_superuser
+from app.schemas.auth import UserResponse
+from app.auth.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ def get_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_superuser)
+    current_user: User = Depends(get_current_user)
 ) -> Any:
     """Get all users (admin only)."""
     users = db.query(User).offset(skip).limit(limit).all()
@@ -24,7 +24,7 @@ def get_users(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_superuser)
+    current_user: User = Depends(get_current_user)
 ) -> Any:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

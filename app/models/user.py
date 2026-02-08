@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Text
 from sqlalchemy.sql import func
-from app.models.database import Base
+from . import Base  # IMPORTANT: Import Base from current package
+
 
 class User(Base):
-
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
