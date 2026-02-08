@@ -1,0 +1,425 @@
+$color-primary: #4F46E5;
+$color-primary-hover: #4338CA;
+$color-background: #F9FAFB;
+$color-white: #FFFFFF;
+$color-text: #111827;
+$color-text-secondary: #6B7280;
+$color-border: #E5E7EB;
+$color-danger: #EF4444;
+$color-success: #10B981;
+$border-radius: 8px;
+
+.productsPage {
+  min-height: 100vh;
+  background-color: $color-background;
+}
+
+.header {
+  background-color: #374151;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .logoutBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: $color-white;
+  border-radius: $border-radius;
+  margin-top: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .pageTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: $color-text;
+  }
+
+  .searchBox {
+    position: relative;
+    width: 300px;
+
+    .searchInput {
+      width: 100%;
+      padding: 10px 40px 10px 16px;
+      border: 1px solid $color-border;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      }
+
+      &::placeholder {
+        color: $color-text-secondary;
+      }
+    }
+
+    .searchIcon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $color-text-secondary;
+      pointer-events: none;
+    }
+  }
+}
+
+.actionsBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .sectionTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: $color-text;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .refreshBtn {
+    background: $color-white;
+    border: 1px solid $color-border;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $color-background;
+    }
+  }
+
+  .addBtn {
+    background: $color-primary;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $color-primary-hover;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .addIcon {
+      font-size: 18px;
+      font-weight: bold;
+    }
+  }
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  position: relative;
+}
+
+.loadingBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(79, 70, 229, 0.1);
+  overflow: hidden;
+  z-index: 10;
+
+  .loadingProgress {
+    height: 100%;
+    background: $color-primary;
+    animation: loading 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes loading {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 50%;
+    margin-left: 25%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: $color-white;
+
+  thead {
+    background: $color-background;
+    border-bottom: 2px solid $color-border;
+
+    tr {
+      th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-text-secondary;
+        text-transform: none;
+        white-space: nowrap;
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+          transition: all 0.2s;
+
+          &:hover {
+            color: $color-primary;
+            background: rgba(79, 70, 229, 0.05);
+          }
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $color-border;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(79, 70, 229, 0.02);
+      }
+
+      &.selected {
+        background: rgba(79, 70, 229, 0.05);
+      }
+
+      td {
+        padding: 12px 16px;
+        font-size: 14px;
+        color: $color-text;
+      }
+    }
+  }
+}
+
+.checkboxCell {
+  width: 40px;
+
+  input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.productName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .productImage {
+    width: 48px;
+    height: 48px;
+    background: $color-background;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .name {
+    font-weight: 500;
+    color: $color-text;
+    margin-bottom: 2px;
+  }
+
+  .category {
+    font-size: 12px;
+    color: $color-text-secondary;
+  }
+}
+
+.rating {
+  color: $color-text;
+  font-weight: 500;
+}
+
+.ratingLow {
+  color: $color-danger;
+  font-weight: 600;
+}
+
+.price {
+  font-weight: 600;
+  color: $color-text;
+  font-variant-numeric: tabular-nums;
+}
+
+.actionsCell {
+  width: 100px;
+
+  .actionBtn,
+  .actionBtnSecondary {
+    background: $color-primary;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    }
+  }
+
+  .actionBtnSecondary {
+    background: transparent;
+    color: $color-text-secondary;
+    border: 1px solid $color-border;
+
+    &:hover {
+      background: $color-background;
+      border-color: $color-text-secondary;
+      box-shadow: none;
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $color-border;
+
+  .paginationInfo {
+    font-size: 14px;
+    color: $color-text-secondary;
+  }
+
+  .paginationControls {
+    display: flex;
+    gap: 6px;
+  }
+
+  .pageBtn {
+    background: $color-white;
+    border: 1px solid $color-border;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: $color-text;
+    min-width: 36px;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: $color-background;
+      border-color: $color-primary;
+      color: $color-primary;
+    }
+
+    &.active {
+      background: $color-primary;
+      color: white;
+      border-color: $color-primary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    padding: 16px;
+  }
+
+  .table {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .searchBox {
+      width: 100%;
+    }
+  }
+
+  .actionsBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .tableWrapper {
+    overflow-x: scroll;
+  }
+}

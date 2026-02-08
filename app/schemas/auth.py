@@ -24,12 +24,20 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    username: str
+    full_name: str
     password: str
 
     @validator('password')
     def password_strength(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
+        return v
+    
+    @validator('username')
+    def username_length(cls, v):
+        if len(v) < 3:
+            raise ValueError('Username must be at least 3 characters long')
         return v
 
 
@@ -45,6 +53,8 @@ class UserInDB(UserBase):
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
+    username: str
+    full_name: str
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -53,12 +63,6 @@ class UserResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-    remember_me: bool = False
-
-
-class UsernameLoginRequest(BaseModel):
-    username: str
+    username: str  # Can be either username or email
     password: str
     remember_me: bool = False

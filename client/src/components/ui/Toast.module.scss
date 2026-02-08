@@ -1,0 +1,125 @@
+$color-success: #10B981;
+$color-success-bg: #D1FAE5;
+$color-success-border: #6EE7B7;
+$color-error: #EF4444;
+$color-error-bg: #FEE2E2;
+$color-error-border: #FCA5A5;
+$color-text: #111827;
+
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 300px;
+  max-width: 500px;
+  z-index: 9999;
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .icon {
+    font-size: 20px;
+    font-weight: bold;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .message {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .closeBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &.success {
+    background: $color-success-bg;
+    border: 1px solid $color-success-border;
+
+    .icon {
+      color: $color-success;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .message {
+      color: $color-success;
+    }
+
+    .closeBtn {
+      color: $color-success;
+    }
+  }
+
+  &.error {
+    background: $color-error-bg;
+    border: 1px solid $color-error-border;
+
+    .icon {
+      color: $color-error;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .message {
+      color: $color-error;
+    }
+
+    .closeBtn {
+      color: $color-error;
+    }
+  }
+
+  @media (max-width: 640px) {
+    right: 16px;
+    left: 16px;
+    min-width: auto;
+    max-width: none;
+  }
+}

@@ -144,6 +144,39 @@ class ApiService {
   isAuthenticated(): boolean {
     return !!this.getAccessToken();
   }
+
+  // Products API
+  async getProducts(filters?: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    pageSize?: number;
+  }): Promise<any> {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.sortBy) params.append('sort_by', filters.sortBy);
+    if (filters?.sortOrder) params.append('sort_order', filters.sortOrder);
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.pageSize) params.append('page_size', filters.pageSize.toString());
+
+    const response = await this.axiosInstance.get(
+      `/products?${params.toString()}`
+    );
+    return response.data;
+  }
+
+  async addProduct(product: {
+    name: string;
+    vendor: string;
+    article: string;
+    price: number;
+    rating?: number;
+    category?: string;
+  }): Promise<any> {
+    const response = await this.axiosInstance.post('/products', product);
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();
