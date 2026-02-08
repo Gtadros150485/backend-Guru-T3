@@ -1,13 +1,35 @@
-from fastapi import APIRouter, HTTPException
-from typing import List
-from app.schemas.user import UserCreate, UserResponse
+from typing import Any, List
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.models.database import get_db
+from app.models.user import User
+from app.schemas.auth import UserResponse, UserUpdate
+from app.auth.dependencies import get_current_superuser
 
 router = APIRouter()
+
 @router.get("/", response_model=List[UserResponse])
-async def get_users():
-    return []
+def get_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_superuser)
+) -> Any:
+    """Get all users (admin only)."""
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users
 
-@router.post("/", response_model=UserResponse)
-async def create_user(user: UserCreate):
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_superuser)
+) -> Any:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
     return user
-

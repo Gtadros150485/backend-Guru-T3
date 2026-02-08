@@ -1,29 +1,50 @@
-# app/core/config.py
+import secrets
+from typing import Optional, List
 from pydantic_settings import BaseSettings
-from typing import Optional
-from functools import lru_cache
+from pydantic import AnyHttpUrl, validator
+
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "It guru"
-    VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
+    PROJECT_NAME: str = "IT-Guru"
 
-    # Database
-    DATABASE_URL: Optional[str] = None
-
-    # Security
-    SECRET_KEY: str = "your-secret-key-here"  # Change in production
+    SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    ASYNC_DATABASE_URL: Optional[str] = None
-    ASYNC_SECRET_KEY: Optional[str] = None
-    ASYNC_ALGORITHM: str = "HS256"
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 7
+
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "http://localhost:8000"
+    ]
+
+    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: str | List[str]) -> List[str] | str:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
+    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "auth_db"
+    DATABASE_URL: Optional[str] = None
+
+    @validator("DATABASE_URL", pre=True)
+    def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
+        if isinstance(v, str):
+            return v
+        return f"postgresql://{values.get('POSTGRES_USER')}:{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_SERVER')}/{values.get('POSTGRES_DB')}"
+
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
 
     class Config:
+        case_sensitive = True
         env_file = ".env"
-
-@lru_cache(maxsize=None)
-def get_settings():
-    return Settings()
 
 settings = Settings()
