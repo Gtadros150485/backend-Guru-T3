@@ -1,3 +1,6 @@
+// ============================================
+// VARIABLES
+// ============================================
 $color-primary: #007bff;
 $color-primary-hover: #0056b3;
 $color-success: #28a745;
@@ -13,7 +16,7 @@ $border-radius: 8px;
 $transition-speed: 0.3s;
 $focus-ring-width: 2px;
 
-
+// Dark mode variables
 $color-dark-bg: #1E1E1E;
 $color-dark-text: #ffffff;
 $color-dark-text-secondary: #b3b3b3;
@@ -21,6 +24,15 @@ $color-dark-border: #404040;
 $color-dark-input-bg: #2d2d2d;
 $color-dark-shadow: rgba(0, 0, 0, 0.3);
 
+// Pre-calculated lightened colors
+$color-text-secondary-lightened: adjust-color($color-text-secondary, $lightness: 30%);
+$color-dark-text-secondary-lightened: adjust-color($color-dark-text-secondary, $lightness: 10%);
+$color-success-lightened: adjust-color($color-success, $lightness: 20%);
+$color-danger-lightened: adjust-color($color-danger, $lightness: 20%);
+
+// ============================================
+// MIXINS
+// ============================================
 @mixin focus-ring {
   outline: $focus-ring-width solid $color-primary;
   outline-offset: $focus-ring-width;
@@ -52,7 +64,7 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 
   &::placeholder {
-    color: lighten($color-text-secondary, 30%);
+    color: $color-text-secondary-lightened;
     opacity: 0.7;
   }
 
@@ -138,7 +150,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   line-height: 1.5;
 }
 
-
+// ============================================
+// ANIMATIONS
+// ============================================
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -197,7 +211,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
-
+// ============================================
+// COMPONENT STYLES
+// ============================================
 .loginContainer {
   max-width: 400px;
   margin: 0 auto;
@@ -258,6 +274,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
+// ============================================
+// MESSAGES
+// ============================================
 .successMessage {
   @include message-base;
   background-color: #d4edda;
@@ -284,7 +303,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
-
+// ============================================
+// FORM STYLES
+// ============================================
 .loginForm {
   display: flex;
   flex-direction: column;
@@ -336,6 +357,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   line-height: 1.4;
 }
 
+// ============================================
+// PASSWORD HEADER
+// ============================================
 .passwordHeader {
   display: flex;
   justify-content: space-between;
@@ -377,6 +401,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
+// ============================================
+// CHECKBOX STYLES
+// ============================================
 .checkboxContainer {
   display: flex;
   align-items: center;
@@ -454,6 +481,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   user-select: none;
 }
 
+// ============================================
+// BUTTON STYLES
+// ============================================
 .submitButton {
   @include button-base;
   margin-top: 8px;
@@ -476,6 +506,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 }
 
+// ============================================
+// DIVIDER STYLES
+// ============================================
 .divider {
   position: relative;
   text-align: center;
@@ -516,6 +549,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   letter-spacing: 0.05em;
 }
 
+// ============================================
+// FOOTER STYLES
+// ============================================
 .footer {
   text-align: center;
   margin-top: 8px;
@@ -566,6 +602,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
+// ============================================
+// DEMO HINT
+// ============================================
 .demoHint {
   margin-top: 20px;
   padding: 12px;
@@ -588,6 +627,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
+// ============================================
+// PASSWORD VISIBILITY TOGGLE (Optional Future Feature)
+// ============================================
 .passwordWrapper {
   position: relative;
 }
@@ -614,7 +656,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
-
+// ============================================
+// ACCESSIBILITY & UTILITY CLASSES
+// ============================================
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -679,7 +723,7 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
     color: $color-dark-text;
 
     &::placeholder {
-      color: lighten($color-dark-text-secondary, 10%);
+      color: $color-dark-text-secondary-lightened;
     }
 
     &:-webkit-autofill {
@@ -732,16 +776,19 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   .successMessage {
     background-color: rgba($color-success, 0.15);
     border-color: rgba($color-success, 0.3);
-    color: lighten($color-success, 20%);
+    color: $color-success-lightened;
   }
 
   .errorMessage {
     background-color: rgba($color-danger, 0.15);
     border-color: rgba($color-danger, 0.3);
-    color: lighten($color-danger, 20%);
+    color: $color-danger-lightened;
   }
 }
 
+// ============================================
+// PRINT STYLES
+// ============================================
 @media print {
   .loginContainer {
     box-shadow: none;
@@ -759,7 +806,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
-
+// ============================================
+// HIGH CONTRAST MODE
+// ============================================
 @media (prefers-contrast: high) {
   .formInput,
   .submitButton,
@@ -772,7 +821,9 @@ $color-dark-shadow: rgba(0, 0, 0, 0.3);
   }
 }
 
-
+// ============================================
+// INCREASED FONT SIZE
+// ============================================
 @media (prefers-reduced-data: no-preference) and (prefers-contrast: no-preference) {
   @media (min-width: 1024px) {
     .loginContainer {

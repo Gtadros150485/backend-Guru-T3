@@ -11,7 +11,7 @@ const LoginForm: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<LoginRequest>({
-    username: 'test',
+    username: '',
     password: '',
     remember_me: false,
   });
@@ -331,13 +331,7 @@ const LoginForm: React.FC = () => {
         </div>
 
         {/* Demo Credentials Hint (for development) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className={styles.demoHint}>
-            <small>
-              <strong>Демо доступ:</strong> test / test123
-            </small>
-          </div>
-        )}
+
       </form>
 
       {/* Accessibility Announcement */}
