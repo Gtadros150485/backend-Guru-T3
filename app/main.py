@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.core.database import engine, create_tables
 from app.api.v1.api import api_router
-from app.models import Base
+
 import app
 from fastapi import FastAPI
 from app.api.v1.api import  api_router
