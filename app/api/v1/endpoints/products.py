@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, or_, desc, asc
 from typing import List, Optional
 from app.db.session import get_async_db
 from app.models.product import Product, Order
@@ -16,118 +17,134 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[ProductResponse])
-def get_products(
+async def get_products(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     search: Optional[str] = None,
     sort_by: Optional[str] = None,
-    sort_order: Optional[str] = Query("asc", regex="^(asc|desc)$"),
-    db: Session = Depends(get_async_db),
+    sort_order: Optional[str] = Query("asc", pattern="^(asc|desc)$"),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    query = db.query(Product)
+    stmt = select(Product)
     
     if search:
         search_filter = f"%{search}%"
-        query = query.filter(
-            (Product.name.ilike(search_filter)) |
-            (Product.vendor.ilike(search_filter)) |
-            (Product.article.ilike(search_filter)) |
-            (Product.category.ilike(search_filter))
+        stmt = stmt.where(
+            or_(
+                Product.name.ilike(search_filter),
+                Product.vendor.ilike(search_filter),
+                Product.article.ilike(search_filter),
+                Product.category.ilike(search_filter)
+            )
         )
     
     if sort_by:
         if hasattr(Product, sort_by):
             column = getattr(Product, sort_by)
             if sort_order == "desc":
-                query = query.order_by(column.desc())
+                stmt = stmt.order_by(desc(column))
             else:
-                query = query.order_by(column.asc())
+                stmt = stmt.order_by(asc(column))
     
-    products = query.offset(skip).limit(limit).all()
+    stmt = stmt.offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    products = result.scalars().all()
     return products
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
-def get_product(
+async def get_product(
     product_id: int,
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    product = db.query(Product).filter(Product.id == product_id).first()
+    stmt = select(Product).where(Product.id == product_id)
+    result = await db.execute(stmt)
+    product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
 
 @router.post("/", response_model=ProductResponse)
-def create_product(
+async def create_product(
     product_data: ProductCreate,
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    existing = db.query(Product).filter(Product.article == product_data.article).first()
+    stmt = select(Product).where(Product.article == product_data.article)
+    result = await db.execute(stmt)
+    existing = result.scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=400, detail="Product with this article already exists")
     
     product = Product(**product_data.model_dump())
     db.add(product)
-    db.commit()
-    db.refresh(product)
+    await db.commit()
+    await db.refresh(product)
     return product
 
 
 @router.put("/{product_id}", response_model=ProductResponse)
-def update_product(
+async def update_product(
     product_id: int,
     product_data: ProductUpdate,
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    product = db.query(Product).filter(Product.id == product_id).first()
+    stmt = select(Product).where(Product.id == product_id)
+    result = await db.execute(stmt)
+    product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
     update_data = product_data.model_dump(exclude_unset=True)
     
     if "article" in update_data:
-        existing = db.query(Product).filter(
+        stmt = select(Product).where(
             Product.article == update_data["article"],
             Product.id != product_id
-        ).first()
+        )
+        result = await db.execute(stmt)
+        existing = result.scalar_one_or_none()
         if existing:
             raise HTTPException(status_code=400, detail="Product with this article already exists")
     
     for field, value in update_data.items():
         setattr(product, field, value)
     
-    db.commit()
-    db.refresh(product)
+    await db.commit()
+    await db.refresh(product)
     return product
 
 
 @router.delete("/{product_id}")
-def delete_product(
+async def delete_product(
     product_id: int,
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    product = db.query(Product).filter(Product.id == product_id).first()
+    stmt = select(Product).where(Product.id == product_id)
+    result = await db.execute(stmt)
+    product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    db.delete(product)
-    db.commit()
+    await db.delete(product)
+    await db.commit()
     return {"message": "Product deleted successfully"}
 
 
 @router.post("/orders", response_model=OrderResponse)
-def create_order(
+async def create_order(
     order_data: OrderCreate,
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    product = db.query(Product).filter(Product.id == order_data.product_id).first()
+    stmt = select(Product).where(Product.id == order_data.product_id)
+    result = await db.execute(stmt)
+    product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
@@ -150,17 +167,19 @@ def create_order(
     product.quantity -= order_data.quantity
     
     db.add(order)
-    db.commit()
-    db.refresh(order)
+    await db.commit()
+    await db.refresh(order)
     return order
 
 
 @router.get("/orders/", response_model=List[OrderResponse])
-def get_orders(
+async def get_orders(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
-    db: Session = Depends(get_async_db),
+    db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
-    orders = db.query(Order).offset(skip).limit(limit).all()
+    stmt = select(Order).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    orders = result.scalars().all()
     return orders

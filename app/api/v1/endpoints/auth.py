@@ -82,7 +82,13 @@ async def refresh_token(
     refresh_data: RefreshTokenRequest,
     db: AsyncSession = Depends(get_async_db)
 ) -> Any:
-    payload = jwt_handler.verify_token(refresh_data.refresh_token)
+    try:
+        payload = jwt_handler.decode_token(refresh_data.refresh_token)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
 
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(
@@ -90,8 +96,17 @@ async def refresh_token(
             detail="Invalid refresh token",
         )
 
-    user_id = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
+    
+    # Convert string to integer
+    try:
+        user_id = int(user_id_str)
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
@@ -112,7 +127,7 @@ async def refresh_token(
         )
 
     access_token = jwt_handler.create_access_token(
-        data={"sub": user.id}
+        user_id=user.id
     )
 
     return {

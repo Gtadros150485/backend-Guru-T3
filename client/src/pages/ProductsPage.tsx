@@ -133,7 +133,7 @@ const ProductsPage: React.FC = () => {
   return (
     <div className={styles.productsPage}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Экран авторизации</h1>
+        <h1 className={styles.title}>Панель управления</h1>
         <div className={styles.headerIcons}>
           <button className={styles.iconBtn}>🌐</button>
           <button className={styles.iconBtn}>
@@ -141,7 +141,13 @@ const ProductsPage: React.FC = () => {
             🔔
           </button>
           <button className={styles.iconBtn}>✉️</button>
-          <button className={styles.iconBtn} onClick={handleLogout}>⚙️</button>
+          <button 
+            className={styles.iconBtn} 
+            onClick={handleLogout}
+            title="Выйти"
+          >
+            🚪
+          </button>
         </div>
       </header>
 

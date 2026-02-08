@@ -168,21 +168,21 @@ class ApiService {
     return !!this.getAccessToken();
   }
 
-  async getProducts(filters?: {
+  async getProducts(params?: {
+    skip?: number;
+    limit?: number;
     search?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
   }): Promise<any> {
-    const params = new URLSearchParams();
-    if (filters?.search) params.append('search', filters.search);
-    if (filters?.sortBy) params.append('sort_by', filters.sortBy);
-    if (filters?.sortOrder) params.append('sort_order', filters.sortOrder);
-    if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.pageSize) params.append('page_size', filters.pageSize.toString());
+    const queryParams = new URLSearchParams();
+    if (params?.skip !== undefined) queryParams.append('skip', params.skip.toString());
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+    if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
 
-    const response = await apiAxios.get(`/products?${params.toString()}`);
+    const response = await apiAxios.get(`/products/?${queryParams.toString()}`);
     return response.data;
   }
 
