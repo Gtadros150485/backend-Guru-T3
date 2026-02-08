@@ -5,27 +5,24 @@ interface ToastProps {
   message: string;
   type: 'success' | 'error';
   onClose: () => void;
-  duration?: number;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }) => {
+const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, duration);
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [duration, onClose]);
+  }, [onClose]);
 
   return (
     <div className={`${styles.toast} ${styles[type]}`}>
       <div className={styles.icon}>
-        {type === 'success' ? '✓' : '⚠'}
+        {type === 'success' ? '✓' : '✕'}
       </div>
-      <div className={styles.message}>{message}</div>
-      <button className={styles.closeBtn} onClick={onClose}>
-        ×
-      </button>
+      <span className={styles.message}>{message}</span>
+      <button className={styles.closeBtn} onClick={onClose}>×</button>
     </div>
   );
 };

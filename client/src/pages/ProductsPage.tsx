@@ -14,6 +14,7 @@ interface Product {
   rating: number;
   price: number;
   imageUrl?: string;
+  quantity?: number;
 }
 
 const ProductsPage: React.FC = () => {
@@ -28,18 +29,7 @@ const ProductsPage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
-
-  // Mock data for demonstration (replace with real API call)
-  const mockProducts: Product[] = [
-    { id: 1, name: 'USB Флэшкарта 16GB', category: 'Аксессуары', vendor: 'Samsung', article: 'RCH45Q1A', rating: 4.3, price: 48652 },
-    { id: 2, name: 'Утюг Braun TexStyle 9', category: 'Бытовая техника', vendor: 'TexStyle', article: 'DFCHQ1A', rating: 4.9, price: 4233 },
-    { id: 3, name: 'Смартфон Apple iPhone 17', category: 'Телефоны', vendor: 'Apple', article: 'GUYHD2-X4', rating: 4.7, price: 88652 },
-    { id: 4, name: 'Игровая консоль PlayStation 5', category: 'Игровые приставки', vendor: 'Sony', article: 'HT45Q21', rating: 4.1, price: 56236 },
-    { id: 5, name: 'Фен Dyson Supersonic Nural', category: 'Электроника', vendor: 'Dyson', article: 'FJHHGF-CR4', rating: 3.3, price: 48652 },
-    { id: 6, name: 'Наушники Sony WH-1000XM5', category: 'Аксессуары', vendor: 'Sony', article: 'WH1000XM5', rating: 4.8, price: 32450 },
-    { id: 7, name: 'Ноутбук Lenovo ThinkPad', category: 'Компьютеры', vendor: 'Lenovo', article: 'TP-X1-C10', rating: 2.5, price: 125000 },
-    { id: 8, name: 'Клавиатура Logitech MX Keys', category: 'Аксессуары', vendor: 'Logitech', article: 'MX-KEYS-920', rating: 4.6, price: 12500 },
-  ];
+  const itemsPerPage = 20;
 
   useEffect(() => {
     loadProducts();
@@ -48,39 +38,24 @@ const ProductsPage: React.FC = () => {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      let filteredProducts = [...mockProducts];
+      const skip = (currentPage - 1) * itemsPerPage;
+      const params: any = {
+        skip,
+        limit: itemsPerPage
+      };
 
-      // Search filter
       if (searchQuery) {
-        filteredProducts = filteredProducts.filter(p =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.vendor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.article.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        params.search = searchQuery;
       }
 
-      // Sorting
       if (sortBy) {
-        filteredProducts.sort((a, b) => {
-          let aVal = a[sortBy as keyof Product];
-          let bVal = b[sortBy as keyof Product];
-
-          if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-          if (typeof bVal === 'string') bVal = bVal.toLowerCase();
-
-          if (sortOrder === 'asc') {
-            return aVal > bVal ? 1 : -1;
-          } else {
-            return aVal < bVal ? 1 : -1;
-          }
-        });
+        params.sort_by = sortBy;
+        params.sort_order = sortOrder;
       }
 
-      setProducts(filteredProducts);
-      setTotalPages(Math.ceil(filteredProducts.length / 20));
+      const data = await apiService.getProducts(params);
+      setProducts(data);
+      setTotalPages(Math.ceil(data.length / itemsPerPage));
     } catch (error) {
       console.error('Error loading products:', error);
       showToast('Ошибка загрузки товаров', 'error');
@@ -108,11 +83,25 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  const handleAddProduct = (product: any) => {
-    showToast('Товар успешно добавлен!', 'success');
-    setShowAddModal(false);
-    // In real app, reload products from API
-    loadProducts();
+  const handleAddProduct = async (productData: any) => {
+    try {
+      await apiService.createProduct(productData);
+      showToast('Товар успешно добавлен!', 'success');
+      setShowAddModal(false);
+      loadProducts();
+    } catch (error: any) {
+      showToast(error.response?.data?.detail || 'Ошибка при добавлении товара', 'error');
+    }
+  };
+
+  const handleCreateOrder = async (productId: number) => {
+    try {
+      await apiService.createOrder({ product_id: productId, quantity: 1 });
+      showToast('Заказ успешно создан!', 'success');
+      loadProducts();
+    } catch (error: any) {
+      showToast(error.response?.data?.detail || 'Ошибка при создании заказа', 'error');
+    }
   };
 
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -134,22 +123,33 @@ const ProductsPage: React.FC = () => {
     }
   };
 
+  const renderStockIndicator = (quantity?: number) => {
+    if (!quantity) return <div className={styles.stockEmpty}></div>;
+    if (quantity < 5) return <div className={styles.stockLow}></div>;
+    if (quantity < 10) return <div className={styles.stockMedium}></div>;
+    return <div className={styles.stockFull}></div>;
+  };
+
   return (
     <div className={styles.productsPage}>
-      {/* Header */}
       <header className={styles.header}>
-        <h1 className={styles.title}>Товары (Desktop)</h1>
-        <button className={styles.logoutBtn} onClick={handleLogout}>
-          Выйти
-        </button>
+        <h1 className={styles.title}>Экран авторизации</h1>
+        <div className={styles.headerIcons}>
+          <button className={styles.iconBtn}>🌐</button>
+          <button className={styles.iconBtn}>
+            <span className={styles.badge}>10</span>
+            🔔
+          </button>
+          <button className={styles.iconBtn}>✉️</button>
+          <button className={styles.iconBtn} onClick={handleLogout}>⚙️</button>
+        </div>
       </header>
 
-      {/* Main Content */}
       <div className={styles.container}>
-        {/* Top Bar */}
         <div className={styles.topBar}>
           <h2 className={styles.pageTitle}>Товары</h2>
           <div className={styles.searchBox}>
+            <span className={styles.searchIcon}>🔍</span>
             <input
               type="text"
               placeholder="Найти"
@@ -157,25 +157,25 @@ const ProductsPage: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-            <span className={styles.searchIcon}>🔍</span>
           </div>
         </div>
 
-        {/* Actions Bar */}
         <div className={styles.actionsBar}>
           <h3 className={styles.sectionTitle}>Все позиции</h3>
           <div className={styles.actions}>
             <button className={styles.refreshBtn} onClick={loadProducts}>
               🔄
             </button>
+            <button className={styles.filterBtn}>
+              ☰
+            </button>
             <button className={styles.addBtn} onClick={() => setShowAddModal(true)}>
-              <span className={styles.addIcon}>+</span>
+              <span className={styles.addIcon}>⊕</span>
               Добавить
             </button>
           </div>
         </div>
 
-        {/* Table */}
         <div className={styles.tableWrapper}>
           {loading && (
             <div className={styles.loadingBar}>
@@ -208,7 +208,8 @@ const ProductsPage: React.FC = () => {
                 <th onClick={() => handleSort('price')} className={styles.sortable}>
                   Цена, ₽ {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th className={styles.actionsCell}>Действия</th>
+                <th>Количество</th>
+                <th className={styles.actionsHeader}></th>
               </tr>
             </thead>
             <tbody>
@@ -236,16 +237,27 @@ const ProductsPage: React.FC = () => {
                   <td>{product.vendor}</td>
                   <td>{product.article}</td>
                   <td>
-                    <span className={product.rating < 3 ? styles.ratingLow : styles.rating}>
+                    <span className={product.rating < 3.5 ? styles.ratingLow : styles.rating}>
                       {product.rating}/5
                     </span>
                   </td>
                   <td className={styles.price}>
-                    {product.price.toLocaleString('ru-RU', { minimumFractionDigits: 2 })}
+                    {product.price.toLocaleString('ru-RU')} .00
+                  </td>
+                  <td>
+                    {renderStockIndicator(product.quantity)}
                   </td>
                   <td className={styles.actionsCell}>
-                    <button className={styles.actionBtn}>+</button>
-                    <button className={styles.actionBtnSecondary}>○</button>
+                    <button 
+                      className={styles.actionBtn}
+                      onClick={() => handleCreateOrder(product.id)}
+                      title="Создать заказ"
+                    >
+                      +
+                    </button>
+                    <button className={styles.actionBtnSecondary} title="Подробнее">
+                      ○
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -253,7 +265,6 @@ const ProductsPage: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className={styles.pagination}>
           <div className={styles.paginationInfo}>
             Показано 1-20 из 120
@@ -286,7 +297,6 @@ const ProductsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Product Modal */}
       {showAddModal && (
         <AddProductModal
           onClose={() => setShowAddModal(false)}
@@ -294,7 +304,6 @@ const ProductsPage: React.FC = () => {
         />
       )}
 
-      {/* Toast Notification */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );

@@ -59,13 +59,12 @@ async def login(
     ) if login_data.remember_me else timedelta(days=1)
 
     access_token = jwt_handler.create_access_token(
-        data={"sub": user.id},
+        user_id=user.id,
         expires_delta=access_token_expires
     )
 
     refresh_token = jwt_handler.create_refresh_token(
-        data={"sub": user.id},
-        expires_delta=refresh_token_expires
+        user_id=user.id
     )
 
     user.refresh_token = refresh_token
